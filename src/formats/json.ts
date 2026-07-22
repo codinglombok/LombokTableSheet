@@ -56,7 +56,10 @@ export function encodeMarkdown(workbook: Workbook, opts: { sheetName?: string } 
   if (!sheet) return '';
   const rows = sheet.toRows();
   if (rows.length === 0) return '';
-  const esc = (v: CellValue) => String(v ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
+  const esc = (v: CellValue) => String(v ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/\|/g, '\\|')
+    .replace(/\n/g, ' ');
   const header = rows[0] ?? [];
   const body = rows.slice(1);
   const lines = [
