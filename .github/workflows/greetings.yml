@@ -1,0 +1,29 @@
+name: Greetings
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: >
+            Thanks for opening your first issue on LombokTableSheet! A maintainer will
+            take a look soon. If this is a security-relevant report, please see
+            SECURITY.md for the private disclosure process instead of a public issue.
+          pr-message: >
+            Thanks for your first PR! A few things that speed up review: make sure
+            `npm test` (or the relevant port's test command) passes locally, and if
+            this touches a security-relevant path (parsing, decoding, formula
+            evaluation), a quick note on what you tested is appreciated — see
+            SECURITY.md for the standard we hold changes like that to.

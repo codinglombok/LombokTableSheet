@@ -1,0 +1,36 @@
+# Consumed by .github/workflows/labeler.yml (actions/labeler@v5 syntax).
+'lang: typescript':
+  - changed-files:
+      - any-glob-to-any-file: ['src/**', 'tests/**/*.ts', 'tests/**/*.tsx']
+
+'lang: php':
+  - changed-files:
+      - any-glob-to-any-file: ['ports/php/**']
+
+'lang: go':
+  - changed-files:
+      - any-glob-to-any-file: ['ports/go/**']
+
+'lang: rust':
+  - changed-files:
+      - any-glob-to-any-file: ['ports/rust/**']
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ['**/*.md', 'USAGE.md', 'ARCHITECTURE.md', 'SECURITY.md']
+
+security:
+  - changed-files:
+      - any-glob-to-any-file: ['SECURITY.md', 'tests/security.test.ts', 'tests/fuzz.test.ts', '**/security*']
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: ['.github/workflows/**']
+
+i18n:
+  - changed-files:
+      - any-glob-to-any-file: ['src/i18n/**']
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file: ['package.json', 'package-lock.json', 'composer.json', 'go.mod', 'go.sum']

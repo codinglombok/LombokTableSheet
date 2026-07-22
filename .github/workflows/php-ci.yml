@@ -1,0 +1,27 @@
+name: PHP Port CI
+
+on:
+  push:
+    branches: [main]
+    paths: ['ports/php/**']
+  pull_request:
+    branches: [main]
+    paths: ['ports/php/**']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['8.1', '8.2', '8.3']
+    defaults:
+      run:
+        working-directory: ports/php
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer, phpunit
+      - run: composer install --no-interaction --prefer-dist
+      - run: vendor/bin/phpunit --testdox tests

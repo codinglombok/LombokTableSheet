@@ -1,0 +1,22 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          # Apache-2.0 is our own license; deny copyleft licenses that would
+          # conflict with it in a dependency (see ARCHITECTURE.md §1.2).
+          deny-licenses: GPL-1.0-only, GPL-2.0-only, GPL-3.0-only, AGPL-1.0-only, AGPL-3.0-only
+          comment-summary-in-pr: always

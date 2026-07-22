@@ -1,0 +1,47 @@
+name: Summary
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - run: npm ci
+      - name: Run TS tests
+        run: npm test 2>&1 | tee ts-test-output.txt
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Run Go tests
+        working-directory: ports/go
+        run: go test ./... -v -cover 2>&1 | tee ../../go-test-output.txt
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - name: Run PHP tests
+        working-directory: ports/php
+        run: phpunit tests 2>&1 | tee ../../php-test-output.txt
+      - name: Write job summary
+        if: always()
+        run: |
+          ts_line=$(grep -E "^# (pass|fail)" ts-test-output.txt | tr '\n' ' ' || echo "see log")
+          go_line=$(grep -E "^(ok|FAIL)" go-test-output.txt | tail -1 || echo "see log")
+          php_line=$(grep -E "OK \(|FAILURES" php-test-output.txt | tail -1 || echo "see log")
+          {
+            echo "## Test Summary"
+            echo ""
+            echo "| Language | Result |"
+            echo "|---|---|"
+            echo "| TS/JS | $ts_line |"
+            echo "| Go | $go_line |"
+            echo "| PHP | $php_line |"
+          } >> "$GITHUB_STEP_SUMMARY"

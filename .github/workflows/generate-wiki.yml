@@ -1,0 +1,32 @@
+name: Generate Wiki
+
+on:
+  push:
+    branches: [main]
+    paths: ['ARCHITECTURE.md', 'USAGE.md', 'DETAILED_USAGE.md', 'SECURITY.md', 'PROJECT_SUMMARY.md', 'MASTERPROMPT.md', 'MASTERPROMPT-STAGES.md', 'DEPLOYMENT.md']
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stage docs for the wiki
+        run: |
+          mkdir -p wiki-src
+          # Wiki pages are flat (no subfolders in page names), and "Home.md" is
+          # the wiki's landing page — map README's role onto that convention.
+          cp README.md wiki-src/Home.md
+          for f in ARCHITECTURE USAGE DETAILED_USAGE SECURITY PROJECT_SUMMARY MASTERPROMPT MASTERPROMPT-STAGES DEPLOYMENT; do
+            [ -f "$f.md" ] && cp "$f.md" "wiki-src/$f.md"
+          done
+      - name: Push staged docs to wiki
+        uses: Andrew-Chen-Wang/github-wiki-action@v4
+        env:
+          WIKI_DIR: wiki-src
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_MAIL: 'github-actions[bot]@users.noreply.github.com'
+          GH_NAME: 'github-actions[bot]'

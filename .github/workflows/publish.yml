@@ -1,0 +1,26 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  npm:
+    uses: ./.github/workflows/npm-publish.yml
+    secrets: inherit
+
+  notify-manual-steps:
+    needs: npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print reminders for non-automated publish targets
+        run: |
+          {
+            echo "npm publish: done by the npm job above."
+            echo ""
+            echo "Still manual (see DEPLOYMENT.md):"
+            echo "- Packagist: confirm the webhook fired, or trigger a manual update at packagist.org"
+            echo "- Go module: no action needed beyond this tag existing — pkg.go.dev indexes on first fetch"
+            echo "- Docker Hub / GHCR: rebuild via the docker workflow if the demo image changed"
+            echo "- Static hosting (AWS/VPS/shared hosting): re-sync only if examples/vanilla changed"
+          } >> "$GITHUB_STEP_SUMMARY"

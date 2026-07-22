@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>LombokTableSheet — demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; }
+    table.lts-report { border-collapse: collapse; width: 100%; }
+    table.lts-report th, table.lts-report td { border-bottom: 1px solid #ddd; padding: 6px 10px; text-align: left; }
+    table.lts-report th { background: #f4f4f5; font-weight: 600; }
+    table.lts-report tr:nth-child(even) { background: #fafafa; }
+  </style>
+</head>
+<body>
+  <h1>LombokTableSheet demo</h1>
+  <div id="app"></div>
+
+  <script type="module">
+    import { decodeCsv, LombokTable } from '../../dist/index.js';
+
+    const csv = `name,role,salary\nAlice,Engineer,95000\nBob,Designer,82000\nChandra,PM,101000\n`;
+    const { workbook } = decodeCsv(csv);
+    new LombokTable(document.getElementById('app'), { workbook, template: 'report', locale: 'en-US' });
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "lomboktablesheet",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "ports/php": {
+      "release-type": "php",
+      "package-name": "codinglombok/lomboktablesheet",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "ports/go": {
+      "release-type": "go",
+      "package-name": "lomboktablesheet-go",
+      "changelog-path": "CHANGELOG.md"
+    }
+  },
+  "separate-pull-requests": true
+}
