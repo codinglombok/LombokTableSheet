@@ -168,6 +168,10 @@ var precedence = map[string]int{
 // nested formulas — same hardening as the TS/PHP engines (see SECURITY.md).
 const maxParseDepth = 200
 
+// maxRangeCells guards against unbounded range expansion in formulas like
+// SUM(A1:A50000000) which can exhaust memory or hang without limits.
+const maxRangeCells = 1_000_000
+
 type parser struct {
 	tokens []token
 	pos    int
@@ -321,6 +325,9 @@ func ParseCellRef(ref string) (CellRef, error) {
 	col := 0
 	for _, ch := range m[1] {
 		col = col*26 + int(ch-'A'+1)
+		if col > 16384 {
+			return CellRef{}, fmt.Errorf("invalid cell reference: %s (column overflow)", ref)
+		}
 	}
 	row, _ := strconv.Atoi(m[2])
 	return CellRef{Row: row - 1, Col: col - 1}, nil
@@ -626,6 +633,11 @@ func evalNode(n *Node, resolver CellResolver) FormulaValue {
 				}
 				r1, r2 := minInt(from.Row, to.Row), maxInt(from.Row, to.Row)
 				c1, c2 := minInt(from.Col, to.Col), maxInt(from.Col, to.Col)
+				rangeSize := (r2 - r1 + 1) * (c2 - c1 + 1)
+				if rangeSize > maxRangeCells {
+					args[i] = []FormulaValue{FormulaError{Code: "#VALUE!"}}
+					continue
+				}
 				var vals []FormulaValue
 				for r := r1; r <= r2; r++ {
 					for c := c1; c <= c2; c++ {

@@ -2,13 +2,18 @@ import { Workbook, Sheet, CellValue } from '../core/model.js';
 import { ImportResult, ImportWarning } from './csv.js';
 
 function stripTags(html: string): string {
-  let previous: string;
-  let current = html;
-  do {
-    previous = current;
-    current = current.replace(/<[^>]*>/g, '');
-  } while (current !== previous);
-  return current;
+  let result = '';
+  let inTag = false;
+  for (const ch of html) {
+    if (ch === '<') {
+      inTag = true;
+    } else if (ch === '>') {
+      inTag = false;
+    } else if (!inTag) {
+      result += ch;
+    }
+  }
+  return result;
 }
 
 function decodeEntities(s: string): string {
@@ -38,6 +43,8 @@ function coerce(raw: string): CellValue {
  * simple table without nested tables, colspan/rowspan.
  */
 const DEFAULT_MAX_INPUT_BYTES = 100 * 1024 * 1024; // 100MB
+const DEFAULT_MAX_ROWS = 100_000; // Safeguard against extracting huge tables
+const DEFAULT_MAX_COLS = 1_000;
 
 export function decodeHtml(html: string, opts: { sheetName?: string; locale?: string; maxInputBytes?: number } = {}): ImportResult {
   const warnings: ImportWarning[] = [];
@@ -54,8 +61,16 @@ export function decodeHtml(html: string, opts: { sheetName?: string; locale?: st
     }
     const tableBody = tableMatch[1] ?? '';
     const rowMatches = tableBody.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) ?? [];
+    if (rowMatches.length > DEFAULT_MAX_ROWS) {
+      warnings.push({ message: `Table exceeds maximum row limit of ${DEFAULT_MAX_ROWS}` });
+      return { workbook: null, warnings };
+    }
     const rows: CellValue[][] = rowMatches.map(rowHtml => {
       const cellMatches = rowHtml.match(/<t[dh][^>]*>[\s\S]*?<\/t[dh]>/gi) ?? [];
+      if (cellMatches.length > DEFAULT_MAX_COLS) {
+        warnings.push({ message: `Row exceeds maximum column limit of ${DEFAULT_MAX_COLS}` });
+        return [];
+      }
       return cellMatches.map(cellHtml => {
         const inner = cellHtml.replace(/^<t[dh][^>]*>/i, '').replace(/<\/t[dh]>$/i, '');
         return coerce(decodeEntities(stripTags(inner)));

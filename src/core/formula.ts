@@ -15,6 +15,8 @@ export class FormulaError {
   toString() { return this.code; }
 }
 
+const MAX_RANGE_CELLS = 1_000_000;
+
 // ---------- Tokenizer ----------
 
 type TokenType = 'NUMBER' | 'STRING' | 'REF' | 'RANGE' | 'IDENT' | 'OP' | 'LPAREN' | 'RPAREN' | 'COMMA' | 'EOF';
@@ -198,7 +200,12 @@ export function parseCellRef(ref: string): { row: number; col: number } {
   const letters = m[1] ?? '';
   const digits = m[2] ?? '0';
   let col = 0;
-  for (const ch of letters) col = col * 26 + (ch.charCodeAt(0) - 64);
+  for (const ch of letters) {
+    col = col * 26 + (ch.charCodeAt(0) - 64);
+    if (!Number.isFinite(col) || col > 16384) {
+      throw new Error(`Invalid cell reference: ${ref} (column overflow)`);
+    }
+  }
   return { row: Number(digits) - 1, col: col - 1 };
 }
 
@@ -315,6 +322,11 @@ function evalNode(node: Node, resolver: CellResolver): FormulaValue {
         if (arg.kind === 'range') {
           const { row: r1, col: c1 } = parseCellRef(arg.from);
           const { row: r2, col: c2 } = parseCellRef(arg.to);
+          const rangeRows = Math.abs(r2 - r1) + 1;
+          const rangeCols = Math.abs(c2 - c1) + 1;
+          if (rangeRows * rangeCols > MAX_RANGE_CELLS) {
+            return [new FormulaError('#VALUE!')];
+          }
           const values: FormulaValue[] = [];
           for (let r = Math.min(r1, r2); r <= Math.max(r1, r2); r++) {
             for (let c = Math.min(c1, c2); c <= Math.max(c1, c2); c++) {

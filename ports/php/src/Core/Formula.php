@@ -327,6 +327,9 @@ final class CellRefUtil
         $col = 0;
         foreach (str_split($m[1]) as $ch) {
             $col = $col * 26 + (ord($ch) - 64);
+            if (is_infinite($col) || $col > 16384) {
+                throw new \InvalidArgumentException("Invalid cell reference: {$ref} (column overflow)");
+            }
         }
         return ['row' => ((int) $m[2]) - 1, 'col' => $col - 1];
     }
@@ -346,6 +349,8 @@ final class CellRefUtil
 
 final class FormulaEngine
 {
+    private const MAX_RANGE_CELLS = 1_000_000;
+
     public static function parse(string $formula): Node
     {
         return (new FormulaParser(FormulaLexer::tokenize($formula)))->parse();
@@ -490,6 +495,12 @@ final class FormulaEngine
                 if ($arg instanceof RangeNode) {
                     $from = CellRefUtil::parse($arg->from);
                     $to = CellRefUtil::parse($arg->to);
+                    $rangeRows = abs($to['row'] - $from['row']) + 1;
+                    $rangeCols = abs($to['col'] - $from['col']) + 1;
+                    if ($rangeRows * $rangeCols > self::MAX_RANGE_CELLS) {
+                        $args[] = [new FormulaError('#VALUE!')];
+                        continue;
+                    }
                     $values = [];
                     for ($r = min($from['row'], $to['row']); $r <= max($from['row'], $to['row']); $r++) {
                         for ($c = min($from['col'], $to['col']); $c <= max($from['col'], $to['col']); $c++) {
