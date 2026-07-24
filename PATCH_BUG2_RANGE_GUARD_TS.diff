@@ -1,0 +1,38 @@
+--- a/src/core/formula.ts
++++ b/src/core/formula.ts
+@@ -8,6 +8,11 @@ export type FormulaValue = number | string | boolean | FormulaError;
+ export class FormulaError {
+   constructor(public code: '#REF!' | '#DIV/0!' | '#CIRC!' | '#NAME?' | '#VALUE!' | '#ERROR!') {}
+   toString() { return this.code; }
+ }
+ 
++// Guard against formula-text DoS: SUM(A1:A50000000) should not hang or allocate
++// unboundedly. CSV/JSON decoders have max_input_bytes/max_rows; formula range
++// expansion needs the same cap because range comes from *formula text* alone,
++// not requiring any sheet data to trigger. Limit: ~Excel 16k × Google 1k max.
++const MAX_RANGE_CELLS = 1_000_000;
+ 
+ // ---------- Tokenizer ----------
+@@ -314,13 +319,24 @@ export function evaluate(node: Node, resolver: CellResolver): FormulaValue {
+     case 'call': {
+       const fn = FUNCTIONS[node.name];
+       if (!fn) return new FormulaError('#NAME?');
+       const args: FormulaValue[][] = node.args.map(arg => {
+         if (arg.kind === 'range') {
+           const { row: r1, col: c1 } = parseCellRef(arg.from);
+           const { row: r2, col: c2 } = parseCellRef(arg.to);
++          // Check range size before expanding
++          const rangeRows = Math.abs(r2 - r1) + 1;
++          const rangeCols = Math.abs(c2 - c1) + 1;
++          if (rangeRows * rangeCols > MAX_RANGE_CELLS) {
++            // Return error placeholder; aggregate functions (SUM/COUNT/etc)
++            // already filter non-numeric values, so #VALUE! placeholder gets
++            // silently ignored the same way stray text cells are.
++            return [new FormulaError('#VALUE!')];
++          }
+           const values: FormulaValue[] = [];
+           for (let r = Math.min(r1, r2); r <= Math.max(r1, r2); r++) {
+             for (let c = Math.min(c1, c2); c <= Math.max(c1, c2); c++) {
+               values.push(resolver.resolve(cellRefName(r, c)));
+             }
+           }

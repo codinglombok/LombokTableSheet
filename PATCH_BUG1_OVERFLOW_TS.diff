@@ -1,0 +1,21 @@
+--- a/src/core/formula.ts
++++ b/src/core/formula.ts
+@@ -195,10 +195,18 @@ export function cellRefName(row: number, col: number): string {
+ 
+ export function parseCellRef(ref: string): { row: number; col: number } {
+   const m = /^([A-Z]+)([0-9]+)$/.exec(ref);
+   if (!m) throw new Error(`Invalid cell reference: ${ref}`);
+   const letters = m[1] ?? '';
+   const digits = m[2] ?? '0';
+   let col = 0;
+   for (const ch of letters) col = col * 26 + (ch.charCodeAt(0) - 64);
++  // Guard against overflow: 400+ letters → Infinity, which if used for
++  // set_value/to_rows allocation can exhaust memory. Degrade to explicit error.
++  if (!Number.isFinite(col) || col > 16384) {
++    // 16384 ~= practical max in Excel (~16k columns), Google Sheets (~1k).
++    // Penyerang bisa craft formula text dengan 400 A's, tapi tidak boleh
++    // overflow/wraparound diam-diam — harus explicit error.
++    throw new Error(`Invalid cell reference: ${ref} (column overflow)`);
++  }
+   return { row: Number(digits) - 1, col: col - 1 };
+ }
