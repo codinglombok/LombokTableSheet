@@ -2,7 +2,13 @@ import { Workbook, Sheet, CellValue } from '../core/model.js';
 import { ImportResult, ImportWarning } from './csv.js';
 
 function stripTags(html: string): string {
-  return html.replace(/<[^>]*>/g, '');
+  let previous: string;
+  let current = html;
+  do {
+    previous = current;
+    current = current.replace(/<[^>]*>/g, '');
+  } while (current !== previous);
+  return current;
 }
 
 function decodeEntities(s: string): string {
