@@ -1,6 +1,6 @@
 {
   "name": "lomboktablesheet",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Fast, lightweight, portable Table + Spreadsheet library. Core engine, framework-agnostic.",
   "license": "Apache-2.0",
   "author": "codinglombok",
