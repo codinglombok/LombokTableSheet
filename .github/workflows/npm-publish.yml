@@ -1,8 +1,11 @@
 name: npm Publish
 
+# Triggered ONLY via publish.yml (workflow_call) or a manual dispatch.
+# It used to also listen for `release: published` directly — but publish.yml
+# listens for that same event and then calls this workflow, so every release
+# started two publish runs. The second one always failed with a 403 because
+# the version was already on the registry.
 on:
-  release:
-    types: [published]
   workflow_call: {}
   workflow_dispatch:
     inputs:
