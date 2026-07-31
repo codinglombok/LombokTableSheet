@@ -1,6 +1,6 @@
 # LombokTableSheet — Architecture & System Design
 
-**Status:** Draft v0.1 (design + MVP stage)
+**Status:** v1.0.0 — TS/JS core complete; PHP and Go data-layer ports shipped; Rust not started
 **License:** Apache 2.0
 **Companion projects:** [LombokCharts](https://github.com/codinglombok/LombokCharts), [LombokCSS](https://github.com/codinglombok/LombokCSS)
 

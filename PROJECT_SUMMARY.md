@@ -1,6 +1,6 @@
 # LombokTableSheet — Project Summary
 
-**License:** Apache 2.0 · **Status:** v0.4.0 (TS/JS core) + PHP data-layer port ·
+**License:** Apache 2.0 · **Status:** v1.0.0 (TS/JS core) + PHP and Go data-layer ports ·
 **Last verified:** all numbers below were produced by actually running the test suites,
 not estimated.
 
@@ -22,7 +22,7 @@ byte-identical to the TS core on matching inputs.
 
 | Metric | Value |
 |---|---|
-| TS/JS source files (`src/`) | 18 files, ~1,671 lines |
+| TS/JS source files (`src/`) | 71 files, ~4,500 lines |
 | PHP source files (`ports/php/src/`) | 5 files, ~1,004 lines |
 | Go source files (`ports/go/lombok/`) | 4 files |
 | TS/JS tests | **84**, all passing |

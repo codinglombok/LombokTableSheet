@@ -19,7 +19,7 @@ npm publish --access public
 Nothing to deploy — both CDNs mirror npm automatically once published:
 ```html
 <script type="module">
-  import { decodeCsv, LombokTable } from 'https://unpkg.com/lomboktablesheet@0.1.0/dist/index.js';
+  import { decodeCsv, LombokTable } from 'https://unpkg.com/lomboktablesheet@1.0.0/dist/index.js';
 </script>
 ```
 
