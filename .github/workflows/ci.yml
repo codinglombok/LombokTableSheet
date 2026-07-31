@@ -5,10 +5,14 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-    
-  permissions:
-    contents: read 
-    
+
+# NOTE: this block used to sit indented under `on:`, which made YAML parse it
+# as an event named "permissions" — so the workflow ran with the repository's
+# DEFAULT token permissions and this restriction never applied. It has to be a
+# top-level key, as it is now.
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
