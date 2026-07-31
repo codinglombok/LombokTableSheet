@@ -3,7 +3,15 @@ name: Generate Wiki
 on:
   push:
     branches: [main]
-    paths: ['ARCHITECTURE.md', 'USAGE.md', 'DETAILED_USAGE.md', 'SECURITY.md', 'PROJECT_SUMMARY.md', 'MASTERPROMPT.md', 'MASTERPROMPT-STAGES.md', 'DEPLOYMENT.md']
+    paths:
+      - 'ARCHITECTURE.md'
+      - 'USAGE.md'
+      - 'DETAILED_USAGE.md'
+      - 'SECURITY.md'
+      - 'PROJECT_SUMMARY.md'
+      - 'DEPLOYMENT.md'
+      - 'WORKFLOWS.md'
+      - 'README.md'
   workflow_dispatch: {}
 
 permissions:
@@ -20,9 +28,14 @@ jobs:
           # Wiki pages are flat (no subfolders in page names), and "Home.md" is
           # the wiki's landing page — map README's role onto that convention.
           cp README.md wiki-src/Home.md
-          for f in ARCHITECTURE USAGE DETAILED_USAGE SECURITY PROJECT_SUMMARY MASTERPROMPT MASTERPROMPT-STAGES DEPLOYMENT; do
-            [ -f "$f.md" ] && cp "$f.md" "wiki-src/$f.md"
+          # The `|| true` matters: `run:` uses `bash -e`, so a bare
+          # `[ -f x ] && cp x` that tests false on the LAST iteration would
+          # fail the whole step. The previous version only survived by
+          # accident, because the last name in its list happened to exist.
+          for f in ARCHITECTURE USAGE DETAILED_USAGE SECURITY PROJECT_SUMMARY DEPLOYMENT WORKFLOWS; do
+            [ -f "$f.md" ] && cp "$f.md" "wiki-src/$f.md" || true
           done
+          ls -1 wiki-src
       - name: Push staged docs to wiki
         uses: Andrew-Chen-Wang/github-wiki-action@v4
         env:
