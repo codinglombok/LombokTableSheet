@@ -13,3 +13,11 @@ export {
   parseCellRef, cellRefName, FormulaError, FormulaValue, Node as FormulaNode,
 } from './core/formula.js';
 export { TransactionalSheet, Transaction, CellEdit, CommitResult } from './core/transaction.js';
+export {
+  PluginRegistry, pluginRegistry, PluginLoader, PluginError, ALL_HOOK_NAMES,
+  parseVersion, compareVersions, satisfies,
+} from './plugins/index.js';
+export type {
+  IPlugin, HookName, HookDefinition, PluginCapability,
+  PluginMetadata, PluginRegistryEntry, RegisterOptions, ParsedVersion,
+} from './plugins/index.js';
