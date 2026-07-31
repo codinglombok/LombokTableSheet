@@ -1,6 +1,6 @@
 {
   "name": "lomboktablesheet",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Fast, lightweight, portable Table + Spreadsheet library. Core engine, framework-agnostic.",
   "license": "Apache-2.0",
   "author": "codinglombok",
@@ -39,6 +39,9 @@
     "test": "node --test --import tsx tests/*.test.ts tests/*.test.tsx",
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit"
+  },
+  "overrides": {
+    "brace-expansion": "^5.0.9"
   },
   "devDependencies": {
     "@types/jsdom": "^28.0.3",
