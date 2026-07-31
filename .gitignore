@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.phpunit.result.cache
+ports/rust/target/
+coverage/
+.DS_Store
