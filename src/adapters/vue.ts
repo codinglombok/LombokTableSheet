@@ -1,6 +1,5 @@
 import { defineComponent, h, onMounted, onBeforeUnmount, watch, ref, type PropType } from 'vue';
 import type { TableOptions } from './dom.js';
-import type { SheetOptions } from './sheet.js';
 import { LombokTable } from './dom.js';
 import { LombokSheet } from './sheet.js';
 import type { Workbook } from '../core/model.js';
