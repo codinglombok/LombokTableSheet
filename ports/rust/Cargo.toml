@@ -24,4 +24,3 @@ path = "tests/formats_tests.rs"
 [[example]]
 name = "parity_check"
 path = "examples/parity_check.rs"
-EOF
