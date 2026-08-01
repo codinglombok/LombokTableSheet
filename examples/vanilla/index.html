@@ -9,18 +9,41 @@
     table.lts-report th, table.lts-report td { border-bottom: 1px solid #ddd; padding: 6px 10px; text-align: left; }
     table.lts-report th { background: #f4f4f5; font-weight: 600; }
     table.lts-report tr:nth-child(even) { background: #fafafa; }
+    #error { color: #b00020; font-family: ui-monospace, monospace; white-space: pre-wrap; }
   </style>
 </head>
 <body>
   <h1>LombokTableSheet demo</h1>
   <div id="app"></div>
+  <p id="error" hidden></p>
 
   <script type="module">
-    import { decodeCsv, LombokTable } from '../../dist/index.js';
+    // Imported from specific subpaths, NOT from the package barrel.
+    //
+    // `dist/index.js` re-exports the XLSX codec, which reaches `formats/zip.js`
+    // and its `import { deflateRawSync } from 'node:zlib'`. A browser cannot
+    // resolve that specifier, so importing the barrel makes the whole module
+    // graph fail to load and this page renders as a bare heading — which is
+    // exactly what happened before this change.
+    //
+    // The CSV codec and the DOM adapter pull in nothing Node-specific, so they
+    // load fine on their own. Keep it that way: do not "tidy" these back into a
+    // single barrel import.
+    import { decodeCsv } from '../../dist/formats/csv.js';
+    import { LombokTable } from '../../dist/adapters/dom.js';
 
-    const csv = `name,role,salary\nAlice,Engineer,95000\nBob,Designer,82000\nChandra,PM,101000\n`;
-    const { workbook } = decodeCsv(csv);
-    new LombokTable(document.getElementById('app'), { workbook, template: 'report', locale: 'en-US' });
+    try {
+      const csv = `name,role,salary\nAlice,Engineer,95000\nBob,Designer,82000\nChandra,PM,101000\n`;
+      const { workbook } = decodeCsv(csv);
+      new LombokTable(document.getElementById('app'), { workbook, template: 'report', locale: 'en-US' });
+    } catch (err) {
+      // Surface failures on the page rather than only in the console — a silently
+      // blank demo is how the node:zlib problem went unnoticed in the first place.
+      const el = document.getElementById('error');
+      el.hidden = false;
+      el.textContent = `Demo failed to render: ${err && err.message ? err.message : err}`;
+      throw err;
+    }
   </script>
 </body>
 </html>

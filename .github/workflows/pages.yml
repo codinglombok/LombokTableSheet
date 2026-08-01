@@ -32,10 +32,19 @@ jobs:
           cp -r examples/vanilla/* _site/
           mkdir -p _site/dist
           cp -r dist/* _site/dist/
-          # examples/vanilla/index.html imports from '../../dist/index.js' for local
-          # dev (repo-root-relative); the Pages site layout is flatter, so rewrite
-          # to './dist/index.js' in the copied artifact only — source file is untouched.
-          sed -i "s#'../../dist/index.js'#'./dist/index.js'#" _site/index.html
+          # examples/vanilla/index.html imports '../../dist/<subpath>' for local dev
+          # (repo-root-relative); the Pages site layout is flatter, so rewrite to
+          # './dist/...' in the copied artifact only — the source file is untouched.
+          sed -i "s#'\\.\\./\\.\\./dist/#'./dist/#g" _site/index.html
+          # Fail loudly rather than deploying a page whose imports cannot resolve:
+          # a blank demo previously shipped unnoticed for exactly this reason.
+          if grep -q "\\.\\./\\.\\./dist/" _site/index.html; then
+            echo 'Unrewritten ../../dist/ import remains in _site/index.html' >&2
+            exit 1
+          fi
+          for spec in $(grep -oE "'\\./dist/[^']*'" _site/index.html | tr -d \"'\"); do
+            test -f "_site/$spec" || { echo "Missing $spec in _site" >&2; exit 1; }
+          done
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: _site
