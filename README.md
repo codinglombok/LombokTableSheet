@@ -70,6 +70,12 @@ workflows rather than in the TS suite.
   The `Linter` badge above will stay red until that is fixed properly.
 - **XLSX, i18n, and the DOM adapters are TypeScript-only.** The PHP and Go ports cover
   the data and formula layers; they are not full ports.
+- **`dist/index.js` does not load in a browser via a plain `<script type="module">`.**
+  The barrel re-exports the XLSX codec, which reaches `formats/zip.js` and its
+  `import { deflateRawSync } from 'node:zlib'`. Import the subpaths you need instead
+  (`dist/formats/csv.js`, `dist/adapters/dom.js`, …) — see
+  [DEPLOYMENT.md](./DEPLOYMENT.md) for the full browser-safe list. Bundlers are
+  unaffected; only direct module-script loading hits this.
 
 ## Install
 
@@ -92,7 +98,9 @@ composer require codinglombok/lomboktablesheet
 ## Quick start
 
 ```ts
+// Via a bundler or in Node, the package barrel is fine:
 import { LombokTable, decodeCsv } from 'lomboktablesheet';
+// Loading straight into a browser instead? Import subpaths — see "Known gaps" above.
 
 const { workbook } = decodeCsv('name,age\nAlice,30\nBob,25\n');
 const table = new LombokTable(document.getElementById('app')!, {

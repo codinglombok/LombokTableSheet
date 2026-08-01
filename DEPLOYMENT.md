@@ -16,12 +16,31 @@ npm publish --access public
 - Use `npm version patch|minor|major` + `npm publish` per release; CI can automate this on tag push.
 
 ## Stage 3 — unpkg / jsDelivr (CDN, zero-install usage)
-Nothing to deploy — both CDNs mirror npm automatically once published:
+Nothing to deploy — both CDNs mirror npm automatically once published.
+
+**Import the subpaths you need, not `dist/index.js`.** The package barrel
+re-exports the XLSX codec, which reaches `formats/zip.js` and its
+`import { deflateRawSync } from 'node:zlib'`. A browser cannot resolve that
+specifier, so importing the barrel makes the entire module graph fail to load —
+the page renders nothing, and the only clue is a console error. This is not
+hypothetical: it is what broke the Pages demo.
+
 ```html
 <script type="module">
-  import { decodeCsv, LombokTable } from 'https://unpkg.com/lomboktablesheet@1.0.0/dist/index.js';
+  import { decodeCsv } from 'https://unpkg.com/lomboktablesheet@1.0.0/dist/formats/csv.js';
+  import { LombokTable } from 'https://unpkg.com/lomboktablesheet@1.0.0/dist/adapters/dom.js';
 </script>
 ```
+
+Browser-safe today: `formats/csv.js`, `formats/json.js`, `formats/html.js`,
+`adapters/dom.js`, `adapters/sheet.js`, `core/model.js`, `core/formula.js`,
+`core/splitMerge.js`, `templates/registry.js`, `i18n/`, `plugins/`, `stats/`,
+`engine/`. Node-only: `formats/zip.js` and `formats/xlsx.js` (which imports it),
+and therefore `index.js` as well.
+
+Bundlers (Vite, webpack, esbuild) are unaffected — they resolve `node:zlib`
+through their own polyfill or externals configuration. Only direct
+`<script type="module">` loading hits this.
 
 ## Stage 4 — Docker (demo / CI environment image)
 `docker/Dockerfile` (included) builds a minimal Node image that runs the test suite and
