@@ -37,8 +37,67 @@ function coerce(raw: string): CellValue {
 }
 
 /**
+ * Locate `<name ...>` starting at or after `from`, returning where its content
+ * begins and where the open tag started.
+ *
+ * Index scanning rather than a regex: the previous `<table[^>]*>([\s\S]*?)</table>`
+ * form was flagged by CodeQL as a polynomial ReDoS (js/polynomial-redos). Both
+ * `[^>]*` and the lazy `[\s\S]*?` can backtrack over the same input, so a
+ * crafted document — many `<table` openings with no closing tag — costs
+ * quadratic time. Decoding untrusted HTML is exactly the case where that
+ * matters. A linear scan cannot backtrack at all.
+ */
+function findTag(haystack: string, lower: string, name: string, from: number):
+  { tagStart: number; contentStart: number } | null {
+  const needle = `<${name}`;
+  let i = lower.indexOf(needle, from);
+  while (i !== -1) {
+    // Guard against `<tablet>` matching `<table`: the next character must end
+    // the name, not continue it.
+    const after = lower[i + needle.length];
+    if (after === undefined || after === '>' || after === '/' || after === ' ' ||
+        after === '\t' || after === '\n' || after === '\r' || after === '\f') {
+      const gt = haystack.indexOf('>', i + needle.length);
+      if (gt === -1) return null;
+      return { tagStart: i, contentStart: gt + 1 };
+    }
+    i = lower.indexOf(needle, i + needle.length);
+  }
+  return null;
+}
+
+/** Content of the first `<name>…</name>` at or after `from`, plus where it ended. */
+function readElement(haystack: string, lower: string, name: string, from: number):
+  { inner: string; end: number } | null {
+  const open = findTag(haystack, lower, name, from);
+  if (!open) return null;
+  const close = lower.indexOf(`</${name}>`, open.contentStart);
+  if (close === -1) return null;
+  return { inner: haystack.slice(open.contentStart, close), end: close + name.length + 3 };
+}
+
+/**
+ * Like readElement, but accepts any one of `names` — used for `<td>`/`<th>`,
+ * which the old code matched with `<t[dh][^>]*>`.
+ */
+function readAnyElement(haystack: string, lower: string, names: readonly string[], from: number):
+  { inner: string; end: number } | null {
+  let best: { inner: string; end: number } | null = null;
+  let bestStart = Infinity;
+  for (const name of names) {
+    const open = findTag(haystack, lower, name, from);
+    if (!open || open.tagStart >= bestStart) continue;
+    const close = lower.indexOf(`</${name}>`, open.contentStart);
+    if (close === -1) continue;
+    bestStart = open.tagStart;
+    best = { inner: haystack.slice(open.contentStart, close), end: close + name.length + 3 };
+  }
+  return best;
+}
+
+/**
  * Decode the first <table> found in an HTML fragment/document.
- * Deliberately a small regex-based reader (no DOM dependency, matching the
+ * Deliberately a small hand-written reader (no DOM dependency, matching the
  * "no host-runtime tricks" portability goal) — handles the common case of a
  * simple table without nested tables, colspan/rowspan.
  */
@@ -54,28 +113,46 @@ export function decodeHtml(html: string, opts: { sheetName?: string; locale?: st
     return { workbook: null, warnings };
   }
   try {
-    const tableMatch = /<table[^>]*>([\s\S]*?)<\/table>/i.exec(html);
-    if (!tableMatch) {
+    const lowerHtml = html.toLowerCase();
+    const table = readElement(html, lowerHtml, 'table', 0);
+    if (!table) {
       warnings.push({ message: 'No <table> element found in HTML input' });
       return { workbook: null, warnings };
     }
-    const tableBody = tableMatch[1] ?? '';
-    const rowMatches = tableBody.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) ?? [];
-    if (rowMatches.length > DEFAULT_MAX_ROWS) {
-      warnings.push({ message: `Table exceeds maximum row limit of ${DEFAULT_MAX_ROWS}` });
-      return { workbook: null, warnings };
-    }
-    const rows: CellValue[][] = rowMatches.map(rowHtml => {
-      const cellMatches = rowHtml.match(/<t[dh][^>]*>[\s\S]*?<\/t[dh]>/gi) ?? [];
-      if (cellMatches.length > DEFAULT_MAX_COLS) {
-        warnings.push({ message: `Row exceeds maximum column limit of ${DEFAULT_MAX_COLS}` });
-        return [];
+    const tableBody = table.inner;
+    const lowerBody = tableBody.toLowerCase();
+
+    const rows: CellValue[][] = [];
+    let cursor = 0;
+    for (;;) {
+      const row = readElement(tableBody, lowerBody, 'tr', cursor);
+      if (!row) break;
+      // Checked while scanning rather than after collecting every row, so a
+      // document claiming a million rows stops costing memory at the limit.
+      if (rows.length >= DEFAULT_MAX_ROWS) {
+        warnings.push({ message: `Table exceeds maximum row limit of ${DEFAULT_MAX_ROWS}` });
+        return { workbook: null, warnings };
       }
-      return cellMatches.map(cellHtml => {
-        const inner = cellHtml.replace(/^<t[dh][^>]*>/i, '').replace(/<\/t[dh]>$/i, '');
-        return coerce(decodeEntities(stripTags(inner)));
-      });
-    });
+      cursor = row.end;
+
+      const rowHtml = row.inner;
+      const lowerRow = rowHtml.toLowerCase();
+      const cells: CellValue[] = [];
+      let cellCursor = 0;
+      let overflowed = false;
+      for (;;) {
+        const cell = readAnyElement(rowHtml, lowerRow, ['td', 'th'], cellCursor);
+        if (!cell) break;
+        if (cells.length >= DEFAULT_MAX_COLS) {
+          warnings.push({ message: `Row exceeds maximum column limit of ${DEFAULT_MAX_COLS}` });
+          overflowed = true;
+          break;
+        }
+        cellCursor = cell.end;
+        cells.push(coerce(decodeEntities(stripTags(cell.inner))));
+      }
+      rows.push(overflowed ? [] : cells);
+    }
     if (rows.length === 0) {
       warnings.push({ message: 'Table had no rows' });
     }

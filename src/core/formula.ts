@@ -24,6 +24,29 @@ interface Token { type: TokenType; value: string }
 
 const CELL_RE = /^[A-Z]+[0-9]+/;
 
+/**
+ * True when `ident` is exactly letters-then-digits, e.g. "A1" or "BC23".
+ *
+ * Replaces `CELL_RE.test(ident) && /^[A-Z]+$/.test(ident.replace(/[0-9]+$/, ''))`,
+ * which CodeQL flagged as polynomial ReDoS (js/polynomial-redos): the trailing
+ * `[0-9]+$` backtracks across a long run of digits that never reaches an anchor,
+ * and formula text is user input. A single forward pass has no such worst case.
+ */
+function isCellRefIdent(ident: string): boolean {
+  let k = 0;
+  while (k < ident.length) {
+    const ch = ident.charCodeAt(k);
+    if (ch < 65 || ch > 90) break; // 'A'..'Z'
+    k++;
+  }
+  if (k === 0 || k === ident.length) return false; // needs both parts
+  for (let d = k; d < ident.length; d++) {
+    const ch = ident.charCodeAt(d);
+    if (ch < 48 || ch > 57) return false; // '0'..'9'
+  }
+  return true;
+}
+
 function tokenize(input: string): Token[] {
   const src = input.trim().replace(/^=/, '');
   const tokens: Token[] = [];
@@ -51,7 +74,7 @@ function tokenize(input: string): Token[] {
       let j = i, ident = '';
       while (j < src.length && /[A-Za-z0-9]/.test(src[j] ?? '')) { ident += src[j]; j++; }
       const rest = src.slice(j);
-      if (CELL_RE.test(ident) && /^[A-Z]+$/.test(ident.replace(/[0-9]+$/, ''))) {
+      if (isCellRefIdent(ident)) {
         if (rest.startsWith(':')) {
           let k = j + 1, ident2 = '';
           while (k < src.length && /[A-Za-z0-9]/.test(src[k] ?? '')) { ident2 += src[k]; k++; }
