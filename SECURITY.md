@@ -39,22 +39,30 @@ record of that process actually being followed — including the bugs it already
      against both deeply parenthesized expressions and long unary-operator chains,
      to prevent a stack-overflow denial-of-service from a single malicious formula
      string. Covered in both languages' security test suites.
-4. **Circular formula references** resolve to a `#CIRC!` error value instead of
+4. **No backtracking regexes on untrusted input.** The HTML decoder and the formula
+   lexer both scan by index rather than with patterns that can backtrack. This is a
+   correction, not an original design decision: CodeQL flagged three genuine
+   polynomial-ReDoS sites (`js/polynomial-redos`), and the measurements confirmed
+   them — the old `ident.replace(/[0-9]+$/, '')` in the lexer took 100ms / 385ms /
+   1559ms on 10k / 20k / 40k-character identifiers, quadrupling on each doubling.
+   The replacements run the same inputs in 3ms / 5ms / 10ms. Timed regression tests
+   in `tests/security.test.ts` fail if the backtracking forms return.
+5. **Circular formula references** resolve to a `#CIRC!` error value instead of
    infinite-looping or crashing the process (a `visiting`-set check per evaluation
    chain). Covered by `tests/formula.test.ts`.
-5. **Fuzz/property testing** on the undo/redo transaction layer: `tests/fuzz.test.ts`
+6. **Fuzz/property testing** on the undo/redo transaction layer: `tests/fuzz.test.ts`
    runs 200 seeded-random sequences of edits/undo/redo (deterministic seeds, so any
    failure is reproducible) and asserts core invariants never break. **This test
    already found and led to fixing a real bug** — see below.
-6. **Dependency audit**: `npm audit` reports zero known vulnerabilities across the
+7. **Dependency audit**: `npm audit` reports zero known vulnerabilities across the
    full dependency tree as of this writing (see CI, which runs `npm audit
    --audit-level=high` on every push). The PHP port currently has zero runtime
    dependencies (only a dev-dependency on PHPUnit), so there is no dependency
    surface to audit there yet.
-7. **Strict typing**: `tsc --strict` (including `noUncheckedIndexedAccess`) on the
+8. **Strict typing**: `tsc --strict` (including `noUncheckedIndexedAccess`) on the
    TS side; `declare(strict_types=1)` throughout the PHP port; Go's static type system
    plus `go vet` clean on the Go port.
-8. **Go-specific**: `Evaluate()` wraps AST evaluation in a `recover()`, so an unexpected
+9. **Go-specific**: `Evaluate()` wraps AST evaluation in a `recover()`, so an unexpected
    internal failure degrades to a `#ERROR!` value instead of crashing the process —
    Go's idiomatic equivalent of the "never throw on data" contract the TS/PHP engines
    already follow. The Go port also uses Go's standard-library `encoding/csv` and
