@@ -21,3 +21,9 @@ export type {
   IPlugin, HookName, HookDefinition, PluginCapability,
   PluginMetadata, PluginRegistryEntry, RegisterOptions, ParsedVersion,
 } from './plugins/index.js';
+export { I18nManager, createI18n, getI18n } from './i18n/manager.js';
+export { catalogs, bundledLanguages, registerBundledCatalogs } from './i18n/catalogs/index.js';
+export type {
+  Language, I18nOptions, LanguageCatalog, LanguageStrings,
+  CatalogFormatting, FormattingOptions, PluralRules,
+} from './i18n/types.js';
