@@ -83,3 +83,68 @@ test('formula parser still handles reasonable nesting fine', () => {
   const node = parseFormula('=((((1+2))))*3');
   assert.ok(node);
 });
+
+// ═══════════════════════════════════════════════════════════
+// REGRESSION — polynomial ReDoS (CodeQL js/polynomial-redos)
+//
+// Three regexes used to scan untrusted input with patterns that could
+// backtrack quadratically. They were replaced with linear scans. These tests
+// pin the behaviour AND the cost: on the old code the timed cases took
+// seconds to minutes, so a generous budget still fails loudly if the
+// backtracking forms ever come back.
+// ═══════════════════════════════════════════════════════════
+
+test('decodeHtml stays linear on many unclosed <table> openings', () => {
+  // Old: /<table[^>]*>([\s\S]*?)<\/table>/ retried the lazy body from every
+  // one of these starts, none of which can ever reach a closing tag.
+  const hostile = '<table '.repeat(40_000);
+  const started = Date.now();
+  const { workbook, warnings } = decodeHtml(hostile);
+  const elapsed = Date.now() - started;
+
+  assert.equal(workbook, null);
+  assert.match(warnings[0]?.message ?? '', /No <table> element found/);
+  assert.ok(elapsed < 2000, `decodeHtml took ${elapsed}ms on hostile input`);
+});
+
+test('decodeHtml stays linear on a table full of unclosed <tr> openings', () => {
+  const hostile = `<table>${'<tr '.repeat(40_000)}</table>`;
+  const started = Date.now();
+  const { warnings } = decodeHtml(hostile);
+  const elapsed = Date.now() - started;
+
+  assert.ok(warnings.some(w => /no rows/i.test(w.message)));
+  assert.ok(elapsed < 2000, `decodeHtml took ${elapsed}ms on hostile input`);
+});
+
+test('formula lexer stays linear on a long digit run followed by a letter', () => {
+  // The hostile shape is digits that do NOT end the identifier: `/[0-9]+$/`
+  // then matches a run, hits the trailing letter, fails, and retries one
+  // position later — quadratic. (A run that *does* end the identifier matches
+  // on the first attempt and was never slow, which is why the input matters.)
+  //
+  // Measured against the old expression: 10k->100ms, 20k->385ms, 40k->1559ms,
+  // i.e. 4x per doubling. The linear scan does the same work in 3/5/10ms.
+  const started = Date.now();
+  try {
+    parseFormula(`A${'0'.repeat(60_000)}B`);
+  } catch {
+    // Rejected as an unknown function — irrelevant here; lexing is what we time.
+  }
+  const elapsed = Date.now() - started;
+  assert.ok(elapsed < 2000, `formula lexing took ${elapsed}ms on a hostile identifier`);
+});
+
+test('tag matching is exact: <tablet> is not a <table>', () => {
+  const { workbook, warnings } = decodeHtml('<tablet><tr><td>x</td></tr></tablet>');
+  assert.equal(workbook, null);
+  assert.match(warnings[0]?.message ?? '', /No <table> element found/);
+});
+
+test('cell-ref identification still distinguishes refs from function names', () => {
+  // Letters-then-digits is a ref; anything else is an identifier.
+  const ref = parseFormula('A1');
+  assert.equal(ref.kind, 'ref');
+  const call = parseFormula('SUM(A1:A2)');
+  assert.equal(call.kind, 'call');
+});
