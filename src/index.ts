@@ -33,3 +33,7 @@ export {
 export type {
   AnovaGroupStats, AnovaOneWayResult, AnovaTwoWayResult, AnovaFactorResult,
 } from './stats/anova.js';
+export { HostEngine } from './engine/host-engine.js';
+export { FormulaEngineError } from './engine/errors.js';
+export type { FormulaDef } from './engine/formula-types.js';
+export { plugin as anovaPlugin } from './plugins/anova-plugin.js';

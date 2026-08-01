@@ -1,6 +1,6 @@
 {
   "name": "lomboktablesheet",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "description": "Fast, lightweight, portable Table + Spreadsheet library. Core engine, framework-agnostic.",
   "license": "Apache-2.0",
   "author": "codinglombok",
@@ -18,7 +18,8 @@
     "./vue": { "types": "./dist/vue.d.ts", "import": "./dist/vue.js" },
     "./plugins": { "types": "./dist/plugins/index.d.ts", "import": "./dist/plugins/index.js" },
     "./i18n": { "types": "./dist/i18n/manager.d.ts", "import": "./dist/i18n/manager.js" },
-    "./stats": { "types": "./dist/stats/anova.d.ts", "import": "./dist/stats/anova.js" }
+    "./stats": { "types": "./dist/stats/anova.d.ts", "import": "./dist/stats/anova.js" },
+    "./engine": { "types": "./dist/engine/host-engine.d.ts", "import": "./dist/engine/host-engine.js" }
   },
   "sideEffects": false,
   "files": [
