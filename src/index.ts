@@ -27,3 +27,9 @@ export type {
   Language, I18nOptions, LanguageCatalog, LanguageStrings,
   CatalogFormatting, FormattingOptions, PluralRules,
 } from './i18n/types.js';
+export {
+  anovaOneWay, anovaTwoWay, fDistPValue, incompleteBeta, logGamma, round4,
+} from './stats/anova.js';
+export type {
+  AnovaGroupStats, AnovaOneWayResult, AnovaTwoWayResult, AnovaFactorResult,
+} from './stats/anova.js';

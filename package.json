@@ -1,6 +1,6 @@
 {
   "name": "lomboktablesheet",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Fast, lightweight, portable Table + Spreadsheet library. Core engine, framework-agnostic.",
   "license": "Apache-2.0",
   "author": "codinglombok",
@@ -17,7 +17,8 @@
     "./react": { "types": "./dist/react.d.ts", "import": "./dist/react.js" },
     "./vue": { "types": "./dist/vue.d.ts", "import": "./dist/vue.js" },
     "./plugins": { "types": "./dist/plugins/index.d.ts", "import": "./dist/plugins/index.js" },
-    "./i18n": { "types": "./dist/i18n/manager.d.ts", "import": "./dist/i18n/manager.js" }
+    "./i18n": { "types": "./dist/i18n/manager.d.ts", "import": "./dist/i18n/manager.js" },
+    "./stats": { "types": "./dist/stats/anova.d.ts", "import": "./dist/stats/anova.js" }
   },
   "sideEffects": false,
   "files": [
@@ -33,7 +34,9 @@
     "grid",
     "i18n",
     "data-grid",
-    "plugins"
+    "plugins",
+    "anova",
+    "statistics"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
