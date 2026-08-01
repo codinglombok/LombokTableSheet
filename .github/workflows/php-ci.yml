@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [main]
     paths: ['ports/php/**']
+  # Manual trigger: the path filters above mean a fix to this workflow file
+  # itself never re-runs it, so a stale failure would stick to the README
+  # badge indefinitely.
+  workflow_dispatch: {}
 
 permissions:
   contents: read
