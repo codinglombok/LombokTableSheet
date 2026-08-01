@@ -35,16 +35,11 @@ jobs:
           # examples/vanilla/index.html imports '../../dist/<subpath>' for local dev
           # (repo-root-relative); the Pages site layout is flatter, so rewrite to
           # './dist/...' in the copied artifact only — the source file is untouched.
-          sed -i "s#'\\.\\./\\.\\./dist/#'./dist/#g" _site/index.html
-          # Fail loudly rather than deploying a page whose imports cannot resolve:
-          # a blank demo previously shipped unnoticed for exactly this reason.
-          if grep -q "\\.\\./\\.\\./dist/" _site/index.html; then
-            echo 'Unrewritten ../../dist/ import remains in _site/index.html' >&2
-            exit 1
-          fi
-          for spec in $(grep -oE "'\\./dist/[^']*'" _site/index.html | tr -d \"'\"); do
-            test -f "_site/$spec" || { echo "Missing $spec in _site" >&2; exit 1; }
-          done
+          # Single-quoted with a '#' delimiter: no nested quoting, nothing for the
+          # shell to mis-parse.
+          sed -i 's#\.\./\.\./dist/#./dist/#g' _site/index.html
+      - name: Verify the site would actually load
+        run: node scripts/verify-pages-site.mjs _site
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: _site
