@@ -27,6 +27,10 @@
 
 ---
 
+### sourceforge.net
+[![Download LombokTableSheet](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/lomboktablesheet/files/latest/download)
+
+---
 A Table + Spreadsheet library with a framework-agnostic core and thin adapters for
 React, Vue, and vanilla JS. The core carries **no runtime dependencies** and is written
 deliberately without `eval`, reflection, or host-language tricks — so the same design
