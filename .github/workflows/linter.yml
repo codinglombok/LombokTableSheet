@@ -21,6 +21,8 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint --if-present
+      - name: Actions must be SHA-pinned
+        run: node scripts/check-action-pins.mjs
 
   go-lint:
     runs-on: ubuntu-latest
