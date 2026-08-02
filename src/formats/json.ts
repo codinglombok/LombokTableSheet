@@ -1,5 +1,6 @@
 import { Workbook, Sheet, CellValue } from '../core/model.js';
 import { ImportResult, ImportWarning } from './csv.js';
+import { utf8ByteLength } from '../core/bytes.js';
 
 /** JSON codec: array-of-objects (records) <-> Workbook, using the union of keys as columns. */
 const DEFAULT_MAX_INPUT_BYTES = 100 * 1024 * 1024; // 100MB
@@ -7,7 +8,7 @@ const DEFAULT_MAX_INPUT_BYTES = 100 * 1024 * 1024; // 100MB
 export function decodeJson(text: string, opts: { sheetName?: string; locale?: string; maxInputBytes?: number } = {}): ImportResult {
   const warnings: ImportWarning[] = [];
   const maxInputBytes = opts.maxInputBytes ?? DEFAULT_MAX_INPUT_BYTES;
-  if (Buffer.byteLength(text, 'utf8') > maxInputBytes) {
+  if (utf8ByteLength(text) > maxInputBytes) {
     warnings.push({ message: `Input exceeds the configured size limit of ${maxInputBytes} bytes; refusing to parse (possible resource-exhaustion attempt)` });
     return { workbook: null, warnings };
   }

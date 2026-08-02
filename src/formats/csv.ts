@@ -1,4 +1,5 @@
 import { Workbook, Sheet, CellValue } from '../core/model.js';
+import { utf8ByteLength } from '../core/bytes.js';
 
 export interface ImportWarning {
   message: string;
@@ -57,7 +58,7 @@ export function decodeCsv(text: string, opts: { delimiter?: string; sheetName?: 
   const warnings: ImportWarning[] = [];
   const maxInputBytes = opts.maxInputBytes ?? DEFAULT_MAX_INPUT_BYTES;
   const maxRows = opts.maxRows ?? DEFAULT_MAX_ROWS;
-  if (Buffer.byteLength(text, 'utf8') > maxInputBytes) {
+  if (utf8ByteLength(text) > maxInputBytes) {
     warnings.push({ message: `Input exceeds the configured size limit of ${maxInputBytes} bytes; refusing to parse (possible resource-exhaustion attempt)` });
     return { workbook: null, warnings };
   }

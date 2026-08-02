@@ -1,5 +1,6 @@
 import { Workbook, Sheet, CellValue } from '../core/model.js';
 import { ImportResult, ImportWarning } from './csv.js';
+import { utf8ByteLength } from '../core/bytes.js';
 
 function stripTags(html: string): string {
   let result = '';
@@ -108,7 +109,7 @@ const DEFAULT_MAX_COLS = 1_000;
 export function decodeHtml(html: string, opts: { sheetName?: string; locale?: string; maxInputBytes?: number } = {}): ImportResult {
   const warnings: ImportWarning[] = [];
   const maxInputBytes = opts.maxInputBytes ?? DEFAULT_MAX_INPUT_BYTES;
-  if (Buffer.byteLength(html, 'utf8') > maxInputBytes) {
+  if (utf8ByteLength(html) > maxInputBytes) {
     warnings.push({ message: `Input exceeds the configured size limit of ${maxInputBytes} bytes; refusing to parse (possible resource-exhaustion attempt)` });
     return { workbook: null, warnings };
   }
