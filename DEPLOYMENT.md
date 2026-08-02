@@ -32,6 +32,13 @@ hypothetical: it is what broke the Pages demo.
 </script>
 ```
 
+The size guards in the CSV, JSON and HTML decoders used to call
+`Buffer.byteLength()` — a Node global — and threw "Buffer is not defined" in a
+browser even though they import nothing from `node:`. They now use an internal
+`utf8ByteLength()` helper. `scripts/verify-pages-site.mjs` walks the reachable
+module graph on every Pages build and fails if a `node:` import *or* a Node-only
+global creeps back in, so this list stays honest.
+
 Browser-safe today: `formats/csv.js`, `formats/json.js`, `formats/html.js`,
 `adapters/dom.js`, `adapters/sheet.js`, `core/model.js`, `core/formula.js`,
 `core/splitMerge.js`, `templates/registry.js`, `i18n/`, `plugins/`, `stats/`,
