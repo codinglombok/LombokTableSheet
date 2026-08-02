@@ -24,6 +24,8 @@ than no check, because it trains everyone to ignore the red.
 | `stale.yml` | daily schedule | Marks inactive issues/PRs stale after 60 days, closes after 14 more (exempts `security`/`pinned`) |
 | `greetings.yml` | first issue/PR from a contributor | Welcome message pointing new PR authors at test/security expectations |
 | `generate-wiki.yml` | push touching root docs | Mirrors the root-level `.md` docs into the repo's GitHub Wiki (`README.md` → wiki `Home.md`) |
+| `linter.yml`'s `ts-lint` job | push/PR | Also runs `scripts/check-action-pins.mjs`, which fails if any action is referenced by tag instead of a full commit SHA |
+| `pages.yml`'s verify step | push touching demo/core/workflow | Runs `scripts/verify-pages-site.mjs`, which walks the module graph the demo actually imports and fails on a `node:` import or a Node-only global |
 
 CodeQL scanning is **not** in this table on purpose — it runs through GitHub's
 **default setup** (Settings → Security → Code scanning), which covers
@@ -73,12 +75,8 @@ confusing error until it exists:
 
 ## Known-broken, tracked separately
 
-- **`linter.yml`'s `ts-lint` job** fails at `npm run lint`. The script is
-  `eslint src --ext .ts`, but ESLint 9 removed `--ext` and requires a flat
-  `eslint.config.js`, which this repo does not have. Fixing it properly means adding
-  `typescript-eslint` and then dealing with whatever it flags across the existing
-  sources — a change worth making on its own, not folded into a release. The
-  `go-lint` and `php-lint` jobs in the same file are unaffected.
+- **Resolved (kept for the record):** `npm run lint` used to fail because ESLint 9 requires a flat
+  `eslint.config.js`, which the repo lacked. Fixed in v0.7.2; the job is green.
 - **`ports/rust/`** does not build: `Cargo.toml` declares `src/lib.rs`,
   `tests/{model,formula,formats}_tests.rs`, and `examples/parity_check.rs`, none of
   which exist — the directory contains only `src/formula.rs`. This is also why
@@ -88,11 +86,16 @@ confusing error until it exists:
 
 | Name (from reference list) | Why it's skipped, honestly |
 |---|---|
-| `defender-for-devops` | Microsoft Defender for DevOps is Azure-specific and needs an Azure subscription/tenant this project doesn't have. Building a workflow file that references credentials that don't exist would be exactly the "scaffolding presented as working" this project's non-negotiables warn against. CodeQL default setup + `dependency-review.yml` already cover the same category of risk (SAST + dependency vulnerabilities) without that dependency. |
-| `ossar` | OSSAR (Open Source Static Analysis Runner) was retired by Microsoft/GitHub — a workflow using it would fail on first run. CodeQL and `linter.yml` are the current replacements. |
+| `defender-for-devops` | **Correction:** an earlier version of this table claimed this needs an Azure subscription the project doesn't have. That is wrong — `microsoft/security-devops-action` runs its open-source analyzers without one, and it runs green today in the sibling repo [LombokCharts](https://github.com/codinglombok/LombokCharts). The honest reason it isn't here is that it hasn't been prioritised: CodeQL default setup plus `dependency-review.yml` already cover SAST and dependency vulnerabilities, so the marginal value was judged low. Worth adding if you want its extra analyzers. |
+| `ossar` | **Correction:** an earlier version of this table claimed OSSAR had been retired and would fail on first run. That is wrong — `github/ossar-action` is still published (v2.0.0) and runs green today in [LombokCharts](https://github.com/codinglombok/LombokCharts). As above, the real reason is priority, not impossibility: CodeQL and `linter.yml` cover the same ground. |
 | `static` | Ambiguous name in the reference list — most likely "static analysis," which CodeQL (security-focused) and `linter.yml` (correctness/formatting-focused) already cover between them. Adding a third workflow with unclear scope would be duplication, not more rigor. |
 | `dist` | Likely a "build and attach dist artifacts to release" step — folded into `npm-publish.yml`, which already runs the build before publishing rather than needing a separate artifact-only workflow. |
 | `visual` / `visual-baselines` | Real visual regression testing (screenshot diffing against an approved baseline) needs an actual first-run to establish those baselines, a storage location for them, and a review process for intentional visual changes. Building a `visual-baselines` workflow with no real baseline images behind it would be fake infrastructure. This is left as an honest gap — worth doing once the Table/Sheet visual design stabilizes enough that baselines are worth committing to. |
+
+Both corrections above came from the same mistake: asserting from memory that a
+tool was unavailable, instead of checking. A table headed "deliberately not
+implemented" is worthless if its reasons are invented — "we didn't get to it"
+is a fine entry; "this cannot work" needs evidence.
 
 If you disagree with any of these calls — e.g. you do have Azure DevOps credentials, or
 you want to seed real visual-regression baselines — that's a legitimate reason to build
