@@ -6,6 +6,7 @@ import { decodeJson } from '../src/formats/json';
 import { decodeHtml } from '../src/formats/html';
 import { decodeXlsx } from '../src/formats/xlsx';
 import { parseFormula } from '../src/core/formula';
+import { utf8ByteLength } from '../src/core/bytes';
 
 test('readZip enforces maxEntrySize against actual decompressed bytes, not just declared header', () => {
   // 2MB of highly-compressible data — small on disk, would expand past our tiny limit.
@@ -147,4 +148,54 @@ test('cell-ref identification still distinguishes refs from function names', () 
   assert.equal(ref.kind, 'ref');
   const call = parseFormula('SUM(A1:A2)');
   assert.equal(call.kind, 'call');
+});
+
+// ═══════════════════════════════════════════════════════════
+// REGRESSION — Buffer is not a browser global
+//
+// The size guards in the CSV/JSON/HTML decoders used
+// `Buffer.byteLength(text, 'utf8')`, which threw "Buffer is not defined" on
+// the very first line of every decode in a browser. Avoiding `node:` imports
+// was not sufficient — an assumed global breaks just as completely.
+// ═══════════════════════════════════════════════════════════
+
+test('utf8ByteLength matches Buffer.byteLength across tricky inputs', () => {
+  const cases = [
+    '',
+    'ascii only',
+    'café',                       // 2-byte
+    'åäö ñ ü',
+    '日本語のテキスト',              // 3-byte
+    'مرحبا بالعالم',               // RTL, 2-byte
+    '😀🎉👨‍👩‍👧‍👦',                     // 4-byte + ZWJ sequence
+    'mixed: a√b𝄞c',
+    'a'.repeat(1000) + 'é'.repeat(500) + '漢'.repeat(250),
+  ];
+  for (const s of cases) {
+    assert.equal(
+      utf8ByteLength(s),
+      Buffer.byteLength(s, 'utf8'),
+      `byte length mismatch for ${JSON.stringify(s.slice(0, 24))}`
+    );
+  }
+});
+
+test('utf8ByteLength counts a lone surrogate as the replacement character', () => {
+  const lone = '\uD800';
+  assert.equal(utf8ByteLength(lone), Buffer.byteLength(lone, 'utf8'));
+  assert.equal(utf8ByteLength(lone), 3);
+});
+
+test('the decoders no longer touch Buffer at all', () => {
+  // Runs the guard path with Buffer removed from the global scope: the same
+  // condition a browser presents.
+  const savedBuffer = (globalThis as Record<string, unknown>).Buffer;
+  delete (globalThis as Record<string, unknown>).Buffer;
+  try {
+    assert.ok(decodeCsv('a,b\n1,2\n').workbook);
+    assert.ok(decodeJson('[{"a":1}]').workbook);
+    assert.ok(decodeHtml('<table><tr><td>1</td></tr></table>').workbook);
+  } finally {
+    (globalThis as Record<string, unknown>).Buffer = savedBuffer;
+  }
 });
