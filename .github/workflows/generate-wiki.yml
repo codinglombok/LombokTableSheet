@@ -37,8 +37,8 @@ jobs:
           done
           ls -1 wiki-src
       - name: Push staged docs to wiki
-        # uses: Andrew-Chen-Wang/github-wiki-action@50650fccf3a10f741995523cf9708c53cec8912a # v4
-        uses: Andrew-Chen-Wang/github-wiki-action@latest
+        uses: Andrew-Chen-Wang/github-wiki-action@50650fccf3a10f741995523cf9708c53cec8912a # v4
+        # uses: Andrew-Chen-Wang/github-wiki-action@latest
         env:
           WIKI_DIR: wiki-src
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
