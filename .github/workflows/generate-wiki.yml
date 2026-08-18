@@ -37,10 +37,24 @@ jobs:
           done
           ls -1 wiki-src
       - name: Push staged docs to wiki
-        uses: Andrew-Chen-Wang/github-wiki-action@50650fccf3a10f741995523cf9708c53cec8912a # v4
-        # uses: Andrew-Chen-Wang/github-wiki-action@latest
         env:
-          WIKI_DIR: wiki-src
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_MAIL: 'github-actions[bot]@users.noreply.github.com'
-          GH_NAME: 'github-actions[bot]'
+        run: |
+          cd wiki-src
+          git init -b master
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          WIKI_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+          git remote add origin "$WIKI_URL"
+
+          # Pull existing wiki history so we amend, not force-push
+          git fetch origin master && git reset origin/master 2>/dev/null || true
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Wiki already up to date — nothing to push."
+          else
+            git commit -m "Sync docs from repo @ ${GITHUB_SHA::7}"
+            git push origin master
+          fi
