@@ -9,9 +9,12 @@ RUN npm run build
 
 FROM node:20-alpine
 WORKDIR /app
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/package.json ./package.json
-COPY examples/vanilla ./examples/vanilla
+# Assemble a flat site the same way pages.yml does — index.html imports
+# '../../dist/<subpath>' for local dev; rewrite to './dist/...' so the
+# flat layout resolves correctly when served by http-server.
+COPY --from=build /app/dist ./site/dist
+COPY examples/vanilla/ ./site/
+RUN sed -i 's#\.\./\.\./dist/#./dist/#g' site/index.html
 RUN npm install --omit=dev --no-fund --no-audit http-server
 EXPOSE 8080
-CMD ["npx", "http-server", "examples/vanilla", "-p", "8080"]
+CMD ["npx", "http-server", "site", "-p", "8080"]

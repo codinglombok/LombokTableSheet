@@ -11,7 +11,7 @@ than no check, because it trains everyone to ignore the red.
 
 | Workflow | Trigger | What it does |
 |---|---|---|
-| `ci.yml` | push/PR to `main` | TS/JS: typecheck, full test suite, build, `npm audit --audit-level=high` (Node 18.x/20.x matrix) |
+| `ci.yml` | push/PR to `main` | TS/JS: typecheck, full test suite, build, `npm audit --audit-level=high` (Node 20.x/22.x/24.x matrix) |
 | `php-ci.yml` | push/PR touching `ports/php/**` | PHP: composer install + PHPUnit (8.1–8.3 matrix) |
 | `go-ci.yml` | push/PR touching `ports/go/**` | Go: build, vet, gofmt check, tests w/ coverage (1.21–1.22 matrix) |
 | `linter.yml` | push/PR | Static checks across all three languages: `tsc --noEmit`, `go vet`+`gofmt`, `php -l` |

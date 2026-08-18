@@ -203,7 +203,6 @@ export class PluginRegistry {
   }
 
   private logHookError(pluginName: string, hookName: HookName, err: unknown, async = false): void {
-    // eslint-disable-next-line no-console
     console.warn(
       `[Plugin:${pluginName}] ${async ? 'Async hook' : 'Hook'} "${hookName}" threw:`,
       err

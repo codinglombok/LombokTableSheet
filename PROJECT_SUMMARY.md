@@ -22,13 +22,13 @@ byte-identical to the TS core on matching inputs.
 
 | Metric | Value |
 |---|---|
-| TS/JS source files (`src/`) | 71 files, ~4,500 lines |
+| TS/JS source files (`src/`) | 72 files, ~4,600 lines |
 | PHP source files (`ports/php/src/`) | 5 files, ~1,004 lines |
 | Go source files (`ports/go/lombok/`) | 4 files |
-| TS/JS tests | **84**, all passing |
+| TS/JS tests | **260**, all passing |
 | PHP tests | **33** (69 assertions), all passing |
-| Go tests | **34** (83.2% statement coverage), all passing |
-| **Total tests** | **151** |
+| Go tests | **37**, all passing |
+| **Total tests** | **330** |
 | TS strict typecheck | Clean (`tsc --strict`, `noUncheckedIndexedAccess`) |
 | Go vet / gofmt | Clean |
 | npm dependency vulnerabilities | 0 (`npm audit`, full tree) |
@@ -92,7 +92,7 @@ not silently missing).
 Same data-layer scope and rationale as PHP. Uses Go's standard library (`encoding/csv`,
 `encoding/json`) rather than hand-rolling — a deliberate difference from the TS core's
 XLSX situation, since Go's standard library isn't a third-party dependency the way an
-external zip/xlsx package would be. 34 tests, 83.2% coverage, `go vet`/`gofmt` clean.
+external zip/xlsx package would be. 37 tests, `go vet`/`gofmt` clean.
 The `Sheet.ToRows()` bounds-check bug that the TS core's fuzz test had to *discover*
 (see below) was built into the Go port from the start, with a regression test proving it.
 
@@ -142,9 +142,9 @@ LombokTableSheet/
 ├── README.md             ← quick-start, user-facing
 ├── LICENSE                ← Apache-2.0
 ├── src/                   ← TS/JS core (18 files), incl. src/i18n/locales/ (30 locales)
-├── tests/                 ← 84 tests (unit, DOM/jsdom, React/Vue, fuzz, security, i18n)
+├── tests/                 ← 260 tests (unit, DOM/jsdom, React/Vue, fuzz, security, i18n, plugins, ANOVA, engine)
 ├── examples/              ← vanilla JS demo
 ├── docker/, .github/       ← Dockerfile, ~19 CI/CD workflows (see WORKFLOWS.md)
 ├── ports/php/              ← PHP data-layer port, 33 PHPUnit tests
-└── ports/go/               ← Go data-layer port, 34 tests, 83.2% coverage
+└── ports/go/               ← Go data-layer port, 37 tests
 ```

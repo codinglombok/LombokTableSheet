@@ -4,23 +4,10 @@ version = "0.1.1"
 edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/codinglombok/LombokTableSheet"
-description = "Rust port"
+description = "Rust port — incomplete, only formula.rs exists so far"
+publish = false
 
-[lib]
-path = "src/lib.rs"
-
-[[test]]
-name = "model_tests"
-path = "tests/model_tests.rs"
-
-[[test]]
-name = "formula_tests"
-path = "tests/formula_tests.rs"
-
-[[test]]
-name = "formats_tests"
-path = "tests/formats_tests.rs"
-
-[[example]]
-name = "parity_check"
-path = "examples/parity_check.rs"
+# Only src/formula.rs exists today. The lib, test, and example entries that
+# used to be here pointed at files that were never created, which made
+# `cargo build` fail and caused CodeQL to report "Low Rust analysis quality".
+# They will be restored as the files are actually written.

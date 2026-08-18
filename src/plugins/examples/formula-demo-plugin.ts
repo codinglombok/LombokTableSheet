@@ -48,7 +48,6 @@ export const plugin: IPlugin = {
     {
       hook: 'onFormulaError',
       callback: (formula: string, error: Error) => {
-        // eslint-disable-next-line no-console
         console.warn(`[@lombok-formulas/demo] "${formula}" failed: ${error.message}`);
       },
     },

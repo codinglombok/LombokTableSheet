@@ -50,7 +50,7 @@ ports mechanically to other languages rather than being rewritten per platform.
 
 | | |
 |---|---|
-| **TS/JS core** | 71 source files, ~4,500 lines · **252 tests passing** |
+| **TS/JS core** | 72 source files, ~4,600 lines · **260 tests passing** |
 | **Formula engine** | Pratt parser, no `eval` anywhere on the evaluation path |
 | **Codecs** | CSV · JSON · Markdown · XLSX · HTML · ZIP — all hand-written, no codec dependencies |
 | **i18n** | 30-locale flat UI catalog, plus a namespaced manager with pluralization for 6 languages |
@@ -69,9 +69,6 @@ workflows rather than in the TS suite.
 - **`ports/rust/` does not build.** Its `Cargo.toml` declares `src/lib.rs`, three test
   files, and an example that do not exist — the directory holds only `src/formula.rs`.
   Treat the Rust port as unstarted, not as a port in progress.
-- **`npm run lint` is broken.** The script is `eslint src --ext .ts`, but ESLint 9
-  removed `--ext` and requires a flat `eslint.config.js`, which this repo does not have.
-  The `Linter` badge above will stay red until that is fixed properly.
 - **XLSX, i18n, and the DOM adapters are TypeScript-only.** The PHP and Go ports cover
   the data and formula layers; they are not full ports.
 - **`dist/index.js` does not load in a browser via a plain `<script type="module">`.**
@@ -308,7 +305,7 @@ Both are optional `peerDependencies`; LombokTableSheet works standalone without 
 ```bash
 npm install
 npm run typecheck   # tsc --noEmit
-npm test            # node --test — 252 tests
+npm test            # node --test — 260 tests
 npm run build       # emits dist/ (ESM + type declarations)
 ```
 

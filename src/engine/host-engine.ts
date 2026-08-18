@@ -90,7 +90,6 @@ export class HostEngine {
     for (const raw of defs) {
       const def = raw as FormulaDef;
       if (!def || typeof def.name !== 'string' || typeof def.fn !== 'function') {
-        // eslint-disable-next-line no-console
         console.warn('[HostEngine] Ignoring malformed value from a registerFormula hook (missing name/fn).');
         continue;
       }

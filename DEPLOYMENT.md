@@ -27,8 +27,8 @@ hypothetical: it is what broke the Pages demo.
 
 ```html
 <script type="module">
-  import { decodeCsv } from 'https://unpkg.com/lomboktablesheet@1.0.0/dist/formats/csv.js';
-  import { LombokTable } from 'https://unpkg.com/lomboktablesheet@1.0.0/dist/adapters/dom.js';
+  import { decodeCsv } from 'https://unpkg.com/lomboktablesheet@1.0.1/dist/formats/csv.js';
+  import { LombokTable } from 'https://unpkg.com/lomboktablesheet@1.0.1/dist/adapters/dom.js';
 </script>
 ```
 
