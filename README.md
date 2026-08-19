@@ -1,36 +1,19 @@
 # LombokTableSheet
 
----
-
-### GitHub
-
 [![CI](https://github.com/codinglombok/LombokTableSheet/actions/workflows/ci.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/ci.yml)
-[![PHP Port CI](https://github.com/codinglombok/LombokTableSheet/actions/workflows/php-ci.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/php-ci.yml)
-[![Go Port CI](https://github.com/codinglombok/LombokTableSheet/actions/workflows/go-ci.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/go-ci.yml)
+[![PHP CI](https://github.com/codinglombok/LombokTableSheet/actions/workflows/php-ci.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/php-ci.yml)
+[![Go CI](https://github.com/codinglombok/LombokTableSheet/actions/workflows/go-ci.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/go-ci.yml)
 [![Linter](https://github.com/codinglombok/LombokTableSheet/actions/workflows/linter.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/linter.yml)
-[![Deploy docs](https://github.com/codinglombok/LombokTableSheet/actions/workflows/pages.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/pages.yml)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-
----
-
-### NPM
-
+[![Pages](https://github.com/codinglombok/LombokTableSheet/actions/workflows/pages.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/pages.yml)
+[![CodeQL](https://github.com/codinglombok/LombokTableSheet/actions/workflows/codeql.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/codeql.yml)
 [![npm version](https://img.shields.io/npm/v/lomboktablesheet.svg)](https://www.npmjs.com/package/lomboktablesheet)
 [![npm downloads](https://img.shields.io/npm/dm/lomboktablesheet.svg)](https://www.npmjs.com/package/lomboktablesheet)
 [![jsDelivr hits](https://img.shields.io/jsdelivr/npm/hm/lomboktablesheet.svg)](https://www.jsdelivr.com/package/npm/lomboktablesheet)
 [![types](https://img.shields.io/badge/types-included-blue.svg)](#)
 [![runtime deps](https://img.shields.io/badge/runtime%20deps-0-success.svg)](#)
+[![license](https://img.shields.io/npm/l/lomboktablesheet.svg)](https://github.com/codinglombok/LombokTableSheet/blob/main/LICENSE)
+[![SourceForge](https://img.shields.io/sourceforge/dt/lomboktablesheet.svg)](https://sourceforge.net/projects/lomboktablesheet/)
 
-> The npm badges above will read **not found** until the first publish. `v1.0.0` is the
-> release intended to go out; see [DEPLOYMENT.md](./DEPLOYMENT.md). Everything else on
-> this page is live today.
-
----
-
-### sourceforge.net
-[![Download LombokTableSheet](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/lomboktablesheet/files/latest/download)
-
----
 A Table + Spreadsheet library with a framework-agnostic core and thin adapters for
 React, Vue, and vanilla JS. The core carries **no runtime dependencies** and is written
 deliberately without `eval`, reflection, or host-language tricks — so the same design
