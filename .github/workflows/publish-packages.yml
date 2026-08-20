@@ -13,8 +13,9 @@
 name: Publish GitHub Packages (All Registries)
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'              # cukup git tag + git push
 
 jobs:
   # ═══════════════════════════════════════════════════════════════════════════
