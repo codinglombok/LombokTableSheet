@@ -1,3 +1,10 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# LombokTableSheet — Publish to npmjs.org
+# Triggered ONLY via publish.yml (workflow_call) or manual dispatch.
+# Quality gate: typecheck + test + build.
+#
+# Does NOT replace: publish-packages.yml (GitHub Packages — all 5 registries)
+# ──────────────────────────────────────────────────────────────────────────────
 name: npm Publish
 
 # Triggered ONLY via publish.yml (workflow_call) or a manual dispatch.
