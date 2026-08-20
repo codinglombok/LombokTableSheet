@@ -1,23 +1,65 @@
 # LombokTableSheet
 
+A Table + Spreadsheet library with a framework-agnostic core and thin adapters for
+React, Vue, and vanilla JS. The core carries **no runtime dependencies** and is written
+deliberately without `eval`, reflection, or host-language tricks — so the same design
+ports mechanically to other languages rather than being rewritten per platform.
+
+---
+
+## GitHub
+
 [![CI](https://github.com/codinglombok/LombokTableSheet/actions/workflows/ci.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/ci.yml)
 [![PHP CI](https://github.com/codinglombok/LombokTableSheet/actions/workflows/php-ci.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/php-ci.yml)
 [![Go CI](https://github.com/codinglombok/LombokTableSheet/actions/workflows/go-ci.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/go-ci.yml)
 [![Linter](https://github.com/codinglombok/LombokTableSheet/actions/workflows/linter.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/linter.yml)
 [![Pages](https://github.com/codinglombok/LombokTableSheet/actions/workflows/pages.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/pages.yml)
-[![CodeQL](https://github.com/codinglombok/LombokTableSheet/actions/workflows/codeql.yml/badge.svg)](https://github.com/codinglombok/LombokTableSheet/actions/workflows/codeql.yml)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/codinglombok/LombokTableSheet/blob/main/LICENSE)
+
+---
+
+## npm
+
 [![npm version](https://img.shields.io/npm/v/lomboktablesheet.svg)](https://www.npmjs.com/package/lomboktablesheet)
 [![npm downloads](https://img.shields.io/npm/dm/lomboktablesheet.svg)](https://www.npmjs.com/package/lomboktablesheet)
 [![jsDelivr hits](https://img.shields.io/jsdelivr/npm/hm/lomboktablesheet.svg)](https://www.jsdelivr.com/package/npm/lomboktablesheet)
-[![types](https://img.shields.io/badge/types-included-blue.svg)](#)
-[![runtime deps](https://img.shields.io/badge/runtime%20deps-0-success.svg)](#)
-[![license](https://img.shields.io/npm/l/lomboktablesheet.svg)](https://github.com/codinglombok/LombokTableSheet/blob/main/LICENSE)
-[![SourceForge](https://img.shields.io/sourceforge/dt/lomboktablesheet.svg)](https://sourceforge.net/projects/lomboktablesheet/)
 
-A Table + Spreadsheet library with a framework-agnostic core and thin adapters for
-React, Vue, and vanilla JS. The core carries **no runtime dependencies** and is written
-deliberately without `eval`, reflection, or host-language tricks — so the same design
-ports mechanically to other languages rather than being rewritten per platform.
+---
+
+## Quality
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg?logo=typescript&logoColor=white)](#)
+[![Node](https://img.shields.io/badge/Node-%E2%89%A520-339933.svg?logo=node.js&logoColor=white)](#)
+[![Tests](https://img.shields.io/badge/tests-260%20pass-brightgreen.svg)](#)
+[![Zero deps](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](#)
+[![Types](https://img.shields.io/badge/types-included-blue.svg)](#)
+[![ESM](https://img.shields.io/badge/output-ESM-blue.svg)](#)
+
+---
+
+## SourceForge
+
+[![Download LombokTableSheet](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/lomboktablesheet/files/latest/download)
+[![SourceForge downloads](https://img.shields.io/sourceforge/dm/lomboktablesheet.svg)](https://sourceforge.net/projects/lomboktablesheet/files/latest/download)
+[![SourceForge total](https://img.shields.io/sourceforge/dt/lomboktablesheet.svg)](https://sourceforge.net/projects/lomboktablesheet/files/latest/download)
+
+---
+
+## Packagist
+
+[![Packagist version](https://img.shields.io/packagist/v/codinglombok/lomboktablesheet.svg)](https://packagist.org/packages/codinglombok/lomboktablesheet)
+[![Packagist downloads](https://img.shields.io/packagist/dm/codinglombok/lomboktablesheet.svg)](https://packagist.org/packages/codinglombok/lomboktablesheet)
+[![PHP](https://img.shields.io/badge/PHP-%E2%89%A58.1-777BB4.svg?logo=php&logoColor=white)](#)
+
+---
+
+## Community
+
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/codinglombok/LombokTableSheet/pulls)
+[![GitHub issues](https://img.shields.io/github/issues/codinglombok/LombokTableSheet.svg)](https://github.com/codinglombok/LombokTableSheet/issues)
+[![GitHub Wiki](https://img.shields.io/badge/docs-Wiki-blue.svg?logo=github)](https://github.com/codinglombok/LombokTableSheet/wiki)
+
+---
 
 [![LombokTableSheet](docs/assets/social-preview.png)](https://codinglombok.github.io/LombokTableSheet/)
 
