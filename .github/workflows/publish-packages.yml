@@ -23,6 +23,8 @@ jobs:
   # ═══════════════════════════════════════════════════════════════════════════
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       version: ${{ steps.ver.outputs.version }}
     steps:
@@ -80,9 +82,10 @@ jobs:
             fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
           "
 
-      - run: npm publish
+      - name: Publish (skip if version exists)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish || echo "⚠️  Version already exists on GPR npm — skipping"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # 2. Container → ghcr.io
@@ -219,7 +222,14 @@ jobs:
           </project>
           POMEOF
 
-          mvn deploy -B -DskipTests
+          mvn deploy -B -DskipTests 2>&1 | tee /tmp/mvn.log; rc=${PIPESTATUS[0]}
+          if [ $rc -ne 0 ]; then
+            if grep -q "status code: 409" /tmp/mvn.log; then
+              echo "⚠️  Version already exists on GPR Maven — skipping"
+            else
+              exit $rc
+            fi
+          fi
 
   # ═══════════════════════════════════════════════════════════════════════════
   # 4. NuGet → GitHub Packages
@@ -368,4 +378,11 @@ jobs:
 
           gem push --key github \
             --host https://rubygems.pkg.github.com/codinglombok \
-            "lomboktablesheet-${VERSION}.gem"
+            "lomboktablesheet-${VERSION}.gem" 2>&1 | tee /tmp/gem.log; rc=${PIPESTATUS[0]}
+          if [ $rc -ne 0 ]; then
+            if grep -q "already been pushed" /tmp/gem.log; then
+              echo "⚠️  Version already exists on GPR RubyGems — skipping"
+            else
+              exit $rc
+            fi
+          fi
